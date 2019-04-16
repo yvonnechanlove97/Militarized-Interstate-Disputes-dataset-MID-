@@ -34,3 +34,7 @@ sum(is.na(MID_Dispute[is.na(fatality)==TRUE,fatalpre])==FALSE)
 # Create new logical variable that measures if there were any deaths
 
 MID_Dispute[, deaths := as.logical(fatality != 0)]
+
+# Write results
+
+fwrite(MID_Dispute,file="MIDA_4.2_Cleaned.csv")
