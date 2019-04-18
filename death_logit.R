@@ -18,5 +18,22 @@ colSums(is.na(Raw_Data))
 NNA_Data<-na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)])
 
 ## First crude logit model, mostly for comparison purposes
-death_logit_fc1<-glm(deaths~.,data = NNA_Data, family = "binomial")
-cv.death_logit_fc1<-cv.glm(NNA_Data,death_logit_fc1, K=10)
+dlogit_fc1<-glm(deaths~.,data = NNA_Data, family = "binomial")
+cv.dlogit_fc1<-cv.glm(NNA_Data,dlogit_fc1, K=10)
+
+## Try simple stepwise selection first
+
+dlogit_step<-step(dlogit_fc1,direction="both")
+cv.dlogit_step<-cv.glm(NNA_Data,dlogit_step, K=10)
+
+
+## Comparison of cv results
+## Can be made more efficient later but not really an issue
+ResTable<-data.frame("Crude"=cv.dlogit_fc1$delta,"Step"=cv.dlogit_step$delta)
+
+test<-glm(deaths~1,data=NNA_Data,family = "binomial")
+test2<-terms(deaths~.,data=NNA_Data)
+test3<-step(test,scope = test2,direction = "forward")
+AIC(dlogit_step)
+
+## Note to self get ROC curve
