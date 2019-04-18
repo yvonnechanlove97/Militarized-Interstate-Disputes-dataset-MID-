@@ -49,7 +49,7 @@ transfitted<-function(fittedresults,divide){
   return(res)
 }
 
-misclass<-function(model,divide){
+misclass<-function(model,divide=.5){
   tab_res<-table(transfitted(fitted(model),divide),NNA_Data$deaths)
   rate_res<-(tab_res[1,2]+tab_res[2,1])/sum(tab_res)
   print(tab_res)
@@ -58,5 +58,15 @@ misclass<-function(model,divide){
 
 ## Note to self get ROC curve
 
-foo<-misclass_table(dlogit_fc1,.5)
-bar<-transfitted(foo,.5)
+## What are the problems?
+
+### Problem 1, correlated variables
+#### Problem pairs (styera,endyear), (maxdur,mindur), (hostlev,hiact)
+
+heatmap(cor(NNA_Data[,-14]),symm = TRUE)
+
+
+## Problem 2 factors being treated improperly (arguably not issue for the ordered ones)
+
+dlogit_ffact<-glm(deaths~factor(outcome)+.,data = NNA_Data, family = "binomial")
+dlogit_stepfact<-step(dlogit_ffact,direction="both")
