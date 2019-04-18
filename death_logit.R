@@ -36,4 +36,27 @@ test2<-terms(deaths~.,data=NNA_Data)
 test3<-step(test,scope = test2,direction = "forward")
 AIC(dlogit_step)
 
+## Misclass
+
+transfitted<-function(fittedresults,divide){
+  n<-length(fittedresults)
+  res<-rep(FALSE,n)
+  for(i in 1:n){
+    if(fittedresults[i]>divide){
+      res[i]<-TRUE
+    }
+  }
+  return(res)
+}
+
+misclass<-function(model,divide){
+  tab_res<-table(transfitted(fitted(model),divide),NNA_Data$deaths)
+  rate_res<-(tab_res[1,2]+tab_res[2,1])/sum(tab_res)
+  print(tab_res)
+  print(rate_res)
+}
+
 ## Note to self get ROC curve
+
+foo<-misclass_table(dlogit_fc1,.5)
+bar<-transfitted(foo,.5)
