@@ -24,9 +24,10 @@ MID_Dispute[hiact==-9,hiact := NA]
 MID_Dispute[, outcome := factor(outcome, labels = c("A victory", "B victory","A yield","B yield","Stalemate","Compromise","Released","Unclear","Joins ongoing war"))]
 MID_Dispute[, settle := factor(settle, labels = c("Negotiated","Imposed","None","Unclear"))]
 MID_Dispute[, fatality := factor(fatality, ordered = TRUE)]
-MID_Dispute[, highact := factor(highact, ordered = TRUE)] # Add labels later
+MID_Dispute[, hiact := factor(hiact, ordered = TRUE)] # Add labels later
 MID_Dispute[, hostlev := factor(hostlev, ordered = TRUE)] # Add labels later
 MID_Dispute[, recip := as.logical(recip)]
+MID_Dispute[, ongo2010 := as.logical(ongo2010)]
 
 # Little bit of spare code that shows that for all values fatality is NA fatalpre is NA
 sum(is.na(MID_Dispute[is.na(fatality)==TRUE,fatalpre])==FALSE)
