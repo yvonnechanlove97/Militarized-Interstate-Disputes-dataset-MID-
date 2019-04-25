@@ -2,6 +2,7 @@
 
 # Libraries
 library(boot)
+library(glmnet)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -26,9 +27,19 @@ cv.dlogit_fc1<-cv.glm(NNA_Data,dlogit_fc1, K=10)
 dlogit_step<-step(dlogit_fc1,direction="both")
 cv.dlogit_step<-cv.glm(NNA_Data,dlogit_step, K=10)
 
+## Using more sophisticated approach (Lasso)
+### Should probably address co-variance issues first
+x.mm<-model.matrix(~.,NNA_Data[,1:13])
+
+cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfolds = 10)
+
+### Look at results (Use lambda.1se as it is more conservative/favors simpler models)
+lambda_hat<-cv.dlogit_lasso$lambda.1se
+plot(cv.dlogit_lasso)
+pred_lasso<-predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")
 
 ## Comparison of cv results
-## Can be made more efficient later but not really an issue
+## Can be made more efficient later but not really an issue, Might be able to add parallel
 ResTable<-data.frame("Crude"=cv.dlogit_fc1$delta,"Step"=cv.dlogit_step$delta)
 
 test<-glm(deaths~1,data=NNA_Data,family = "binomial")
