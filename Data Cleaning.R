@@ -51,7 +51,6 @@ pacman::p_load(
   'data.table'
 )
 
-
 #Drop dispnum4,revtype2 because they contain too many missing values
 #Drop fatalpre because it contians missing values and highly correlated to fatality 
 #Drop the last 4 variables which is unrelated
