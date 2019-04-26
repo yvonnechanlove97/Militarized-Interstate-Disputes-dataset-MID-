@@ -40,6 +40,8 @@ cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfol
 lambda_hat<-cv.dlogit_lasso$lambda.1se
 plot(cv.dlogit_lasso)
 
+coef(cv.dlogit_lasso,s="lambda.1se")
+
 # Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
 
@@ -78,10 +80,6 @@ confAll<-function(oddsDat,trueDat){
 confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 # Maybe do manually later
 
-# Visual Display
-
-
-
 ## Note to self get ROC curve
 
 ## What are the problems?
@@ -96,3 +94,7 @@ heatmap(cor(NNA_Data[,-14]),symm = TRUE)
 
 dlogit_ffact<-glm(deaths~factor(outcome)+.,data = NNA_Data, family = "binomial")
 dlogit_stepfact<-step(dlogit_ffact,direction="both")
+
+
+# Creating and outputing charts/figures for report
+
