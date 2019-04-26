@@ -19,10 +19,10 @@ MIDA dataset contains one record per militarized participant at the dispute leve
 
 ## Roadmap
 
-*4/14: Clarification of individual areas of interest completed.
-*4/20: Individual sections have initial work done. Unified base complete (cleaning).
-*4/26: Individual sections complete.
-*4/27: Merging of sections complete. All have unified style.
-*4/30: Presentation complete.
-*5/1: Review presentation.
+* 4/14: Clarification of individual areas of interest completed.
+* 4/20: Individual sections have initial work done. Unified base complete (cleaning).
+* 4/26: Individual sections complete.
+* 4/27: Merging of sections complete. All have unified style.
+* 4/30: Presentation complete.
+* 5/1: Review presentation.
 
