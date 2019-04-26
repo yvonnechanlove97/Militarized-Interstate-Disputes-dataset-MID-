@@ -3,6 +3,7 @@
 # Libraries
 library(boot)
 library(glmnet)
+library(caret)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -36,16 +37,16 @@ cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfol
 ### Look at results (Use lambda.1se as it is more conservative/favors simpler models)
 lambda_hat<-cv.dlogit_lasso$lambda.1se
 plot(cv.dlogit_lasso)
-pred_lasso<-predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")
 
-## Comparison of cv results
+## Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
-ResTable<-data.frame("Crude"=cv.dlogit_fc1$delta,"Step"=cv.dlogit_step$delta)
+ResDat<-data.frame("Full"= predict(dlogit_fc1,type = "response"),
+                   "Step"= predict(dlogit_step,type = "response"),
+                   "Lasso"= predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response"))
+DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
+                   "Step"=cv.dlogit_step$delta[[1]],
+                   "Lasso" = cv.dlogit_lasso$cvm[match(lambda_hat,cv.dlogit_lasso$lambda)])
 
-test<-glm(deaths~1,data=NNA_Data,family = "binomial")
-test2<-terms(deaths~.,data=NNA_Data)
-test3<-step(test,scope = test2,direction = "forward")
-AIC(dlogit_step)
 
 ## Misclass
 
@@ -60,7 +61,7 @@ transfitted<-function(fittedresults,divide){
   return(res)
 }
 
-misclass<-function(model,divide=.5){
+misclass<-function(results,divide=.5){
   tab_res<-table(transfitted(fitted(model),divide),NNA_Data$deaths)
   rate_res<-(tab_res[1,2]+tab_res[2,1])/sum(tab_res)
   print(tab_res)
