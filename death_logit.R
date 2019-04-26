@@ -3,7 +3,9 @@
 # Libraries
 library(boot)
 library(glmnet)
+library(ggplot2)
 library(caret)
+library(e1071)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -40,9 +42,11 @@ plot(cv.dlogit_lasso)
 
 ## Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
+
 ResDat<-data.frame("Full"= predict(dlogit_fc1,type = "response"),
                    "Step"= predict(dlogit_step,type = "response"),
-                   "Lasso"= predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response"))
+                   "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")))
+
 DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
                    "Step"=cv.dlogit_step$delta[[1]],
                    "Lasso" = cv.dlogit_lasso$cvm[match(lambda_hat,cv.dlogit_lasso$lambda)])
@@ -50,7 +54,7 @@ DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
 
 ## Misclass
 
-transfitted<-function(fittedresults,divide){
+transfitted<-function(fittedresults,divide=.5){
   n<-length(fittedresults)
   res<-rep(FALSE,n)
   for(i in 1:n){
@@ -61,12 +65,8 @@ transfitted<-function(fittedresults,divide){
   return(res)
 }
 
-misclass<-function(results,divide=.5){
-  tab_res<-table(transfitted(fitted(model),divide),NNA_Data$deaths)
-  rate_res<-(tab_res[1,2]+tab_res[2,1])/sum(tab_res)
-  print(tab_res)
-  print(rate_res)
-}
+confusion_res<-confusionMatrix(as.factor(transfitted(ResDat$Full)),as.factor(NNA_Data$deaths))
+# Maybe do manually later
 
 ## Note to self get ROC curve
 
