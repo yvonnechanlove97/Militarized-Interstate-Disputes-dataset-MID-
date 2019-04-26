@@ -6,6 +6,8 @@ library(data.table)
 MID_Dispute<-fread("MIDA_4.2.csv")
 MID_Actor<-fread("MIDB_4.2.csv")
 
+#MIDA
+
 # Cleaning data
 ## Recoding NA values
 ### There has to be a better way of doing this
@@ -39,3 +41,37 @@ MID_Dispute[, deaths := as.logical(fatality != 0)]
 # Write results
 
 fwrite(MID_Dispute,file="MIDA_4.2_Cleaned.csv")
+
+
+#MIDB
+if(!require('pacman')) install.packages('pacman')
+pacman::p_load(
+  'dplyr',
+  'tidyr',
+  'zoo',
+  'data.table'
+)
+
+#Drop dispnum4,revtype2 because they contain too many missing values
+#Drop fatalpre because it contians missing values and highly correlated to fatality 
+#Drop the last 4 variables which is unrelated
+MID_Actor=MID_Actor %>% select(-c('dispnum4','revtype2',"fatalpre", "version", "changes_1", "changes_2", "changes_3"))
+
+#Record the exact dates in case
+dates=MID_Actor %>% select(stday:endyear)
+
+
+#Let the missing start day and end day be the first day of the month 
+MID_Actor$stday[MID_Actor$stday==-9]=1
+MID_Actor$stday[MID_Actor$endday==-9]=1
+
+#Calculate the lasting days of the dispute
+MID_Actor=tidyr::unite(MID_Actor,'startdate',c("styear","stmon","stday"),sep='-')
+MID_Actor=tidyr::unite(MID_Actor,'enddate',c("endyear","endmon","endday"),sep='-')
+MID_Actor=MID_Actor %>% 
+  mutate_at(c('startdate','enddate'),function(x){as.Date(x)}) %>%
+  mutate(last_days=enddate-startdate)
+MID_Actor[MID_Actor$last_days==0]=1
+
+# Write results
+fwrite(data_clean,file="MIDB_4.2_Cleaned.csv")
