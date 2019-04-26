@@ -1,1 +1,0 @@
-This is a reminder that using fwrite then fread will not perfectly preserve variable types. It tends to convert "factor" type variables to "character" type. Working on a fix.
