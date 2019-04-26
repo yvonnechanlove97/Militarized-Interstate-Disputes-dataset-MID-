@@ -3,6 +3,9 @@
 # Libraries
 library(boot)
 library(glmnet)
+library(ggplot2)
+library(caret)
+library(e1071)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -36,20 +39,24 @@ cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfol
 ### Look at results (Use lambda.1se as it is more conservative/favors simpler models)
 lambda_hat<-cv.dlogit_lasso$lambda.1se
 plot(cv.dlogit_lasso)
-pred_lasso<-predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")
 
-## Comparison of cv results
+coef(cv.dlogit_lasso,s="lambda.1se")
+
+# Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
-ResTable<-data.frame("Crude"=cv.dlogit_fc1$delta,"Step"=cv.dlogit_step$delta)
 
-test<-glm(deaths~1,data=NNA_Data,family = "binomial")
-test2<-terms(deaths~.,data=NNA_Data)
-test3<-step(test,scope = test2,direction = "forward")
-AIC(dlogit_step)
+ResDat<-data.frame("Full"= predict(dlogit_fc1,type = "response"),
+                   "Step"= predict(dlogit_step,type = "response"),
+                   "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")))
+
+DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
+                   "Step"=cv.dlogit_step$delta[[1]],
+                   "Lasso" = cv.dlogit_lasso$cvm[match(lambda_hat,cv.dlogit_lasso$lambda)])
+
 
 ## Misclass
 
-transfitted<-function(fittedresults,divide){
+transFitted<-function(fittedresults,divide=.5){
   n<-length(fittedresults)
   res<-rep(FALSE,n)
   for(i in 1:n){
@@ -60,12 +67,18 @@ transfitted<-function(fittedresults,divide){
   return(res)
 }
 
-misclass<-function(model,divide=.5){
-  tab_res<-table(transfitted(fitted(model),divide),NNA_Data$deaths)
-  rate_res<-(tab_res[1,2]+tab_res[2,1])/sum(tab_res)
-  print(tab_res)
-  print(rate_res)
+confAll<-function(oddsDat,trueDat){
+  N<-dim(oddsDat)[2]
+  res<-vector(mode="list",length=N)
+  for(i in 1:N){
+    res[[i]]<-confusionMatrix(as.factor(transFitted(oddsDat[,i])),
+                            as.factor(trueDat))
+  }
+  return(res)
 }
+
+confusion_mats<-confAll(ResDat,NNA_Data$deaths)
+# Maybe do manually later
 
 ## Note to self get ROC curve
 
@@ -81,3 +94,7 @@ heatmap(cor(NNA_Data[,-14]),symm = TRUE)
 
 dlogit_ffact<-glm(deaths~factor(outcome)+.,data = NNA_Data, family = "binomial")
 dlogit_stepfact<-step(dlogit_ffact,direction="both")
+
+
+# Creating and outputing charts/figures for report
+
