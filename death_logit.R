@@ -40,7 +40,7 @@ cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfol
 lambda_hat<-cv.dlogit_lasso$lambda.1se
 plot(cv.dlogit_lasso)
 
-## Comparison of results
+# Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
 
 ResDat<-data.frame("Full"= predict(dlogit_fc1,type = "response"),
@@ -54,7 +54,7 @@ DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
 
 ## Misclass
 
-transfitted<-function(fittedresults,divide=.5){
+transFitted<-function(fittedresults,divide=.5){
   n<-length(fittedresults)
   res<-rep(FALSE,n)
   for(i in 1:n){
@@ -65,8 +65,22 @@ transfitted<-function(fittedresults,divide=.5){
   return(res)
 }
 
-confusion_res<-confusionMatrix(as.factor(transfitted(ResDat$Full)),as.factor(NNA_Data$deaths))
+confAll<-function(oddsDat,trueDat){
+  N<-dim(oddsDat)[2]
+  res<-vector(mode="list",length=N)
+  for(i in 1:N){
+    res[[i]]<-confusionMatrix(as.factor(transFitted(oddsDat[,i])),
+                            as.factor(trueDat))
+  }
+  return(res)
+}
+
+confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 # Maybe do manually later
+
+# Visual Display
+
+
 
 ## Note to self get ROC curve
 
