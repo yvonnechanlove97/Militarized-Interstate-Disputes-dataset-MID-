@@ -40,7 +40,7 @@ MID_Dispute[, deaths := as.logical(fatality != 0)]
 
 # Write results
 
-fwrite(MID_Dispute,file="MIDA_4.2_Cleaned.csv")
+saveRDS(MID_Dispute,file="MIDA_4.2_Cleaned.rds")
 
 
 #MIDB
@@ -55,6 +55,7 @@ pacman::p_load(
 #Drop dispnum4,revtype2 because they contain too many missing values
 #Drop fatalpre because it contians missing values and highly correlated to fatality 
 #Drop the last 4 variables which is unrelated
+
 MID_Actor=MID_Actor %>% select(-c('dispnum4','revtype2',"fatalpre", "version", "changes_1", "changes_2", "changes_3"))
 
 #Record the exact dates in case
@@ -74,4 +75,5 @@ MID_Actor=MID_Actor %>%
 MID_Actor[MID_Actor$last_days==0]=1
 
 # Write results
-fwrite(data_clean,file="MIDB_4.2_Cleaned.csv")
+
+saveRDS(MID_Actor,file="MIDB_4.2_Cleaned.rds")
