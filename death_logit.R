@@ -12,7 +12,7 @@ set.seed(1569787)
 
 ## Loading data
 
-Raw_Data<-fread("MIDA_4.2_Cleaned.csv")
+Raw_Data<-readRDS("MIDA_4.2_Cleaned.rds")
 
 ## Problem 1 the excessive NAs
 
@@ -21,7 +21,23 @@ colSums(is.na(Raw_Data))
 ## Some quick pruning, probably should do more intenstive checks to determin what to remove
 NNA_Data<-na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)])
 
+## What are the problems?
+
+### Problem 1, correlated variables
+#### Problem pairs (styera,endyear), (maxdur,mindur), (hostlev,hiact)
+#### Numeric var
+
+NumericPred<-NNA_Data[,sapply(NNA_Data,class) %in% c("integer","double","numeric") & -14,with=FALSE]
+cormat<-cor(NumericPred)
+heatmap(cormat,symm = TRUE)
+
+#### Cat/binary var
+
+nonNumericPred<-NNA_Data[,-14 & !(sapply(NNA_Data,class) %in% c("integer","double","numeric")),with=FALSE]
+nonNumericPred<-nonNumericPred[,-6]
+
 ## First crude logit model, mostly for comparison purposes
+## Not actually using the ordinal variables as such b/c it 
 dlogit_fc1<-glm(deaths~.,data = NNA_Data, family = "binomial")
 cv.dlogit_fc1<-cv.glm(NNA_Data,dlogit_fc1, K=10)
 
@@ -31,7 +47,7 @@ dlogit_step<-step(dlogit_fc1,direction="both")
 cv.dlogit_step<-cv.glm(NNA_Data,dlogit_step, K=10)
 
 ## Using more sophisticated approach (Lasso)
-### Should probably address co-variance issues first
+### Use parallel
 x.mm<-model.matrix(~.,NNA_Data[,1:13])
 
 cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfolds = 10)
@@ -82,19 +98,7 @@ confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 
 ## Note to self get ROC curve
 
-## What are the problems?
-
-### Problem 1, correlated variables
-#### Problem pairs (styera,endyear), (maxdur,mindur), (hostlev,hiact)
-
-heatmap(cor(NNA_Data[,-14]),symm = TRUE)
-
-
-## Problem 2 factors being treated improperly (arguably not issue for the ordered ones)
-
-dlogit_ffact<-glm(deaths~factor(outcome)+.,data = NNA_Data, family = "binomial")
-dlogit_stepfact<-step(dlogit_ffact,direction="both")
-
-
 # Creating and outputing charts/figures for report
 
+
+## to-do (improve datahandling)
