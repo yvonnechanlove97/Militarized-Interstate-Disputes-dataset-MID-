@@ -24,7 +24,7 @@ NNA_Data<-na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)])
 ## What are the problems?
 
 ### Problem 1, correlated variables
-#### Problem pairs (styera,endyear), (maxdur,mindur), (hostlev,hiact)
+#### Problem pairs (stmon,endmon), (maxdur,mindur), (hostlev,hiact)
 #### Numeric var
 
 NumericPred<-NNA_Data[,sapply(NNA_Data,class) %in% c("integer","double","numeric") & -14,with=FALSE]
@@ -36,8 +36,11 @@ heatmap(cormat,symm = TRUE)
 nonNumericPred<-NNA_Data[,-14 & !(sapply(NNA_Data,class) %in% c("integer","double","numeric")),with=FALSE]
 nonNumericPred<-nonNumericPred[,-6]
 
+test<--glm(deaths~as.numeric(hiact),data = NNA_Data, family = "binomial")
+testform<-asfd
+
 ## First crude logit model, mostly for comparison purposes
-## Not actually using the ordinal variables as such b/c it 
+## Not actually using the ordinal variables as such b/c it will throw an error. Largely b/c I need more observations (rule of thumb for logit is n>15*p) 
 dlogit_fc1<-glm(deaths~.,data = NNA_Data, family = "binomial")
 cv.dlogit_fc1<-cv.glm(NNA_Data,dlogit_fc1, K=10)
 
