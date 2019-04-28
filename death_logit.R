@@ -6,6 +6,7 @@ library(glmnet)
 library(ggplot2)
 library(caret)
 library(e1071)
+library(data.table)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -19,7 +20,7 @@ Raw_Data<-readRDS("MIDA_4.2_Cleaned.rds")
 colSums(is.na(Raw_Data))
 
 ## Some quick pruning, probably should do more intenstive checks to determin what to remove
-NNA_Data<-na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)])
+NNA_Data<-as.data.table(na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)]))
 
 ## What are the problems?
 
@@ -36,18 +37,11 @@ heatmap(cormat,symm = TRUE)
 nonNumericPred<-NNA_Data[,-14 & !(sapply(NNA_Data,class) %in% c("integer","double","numeric")),with=FALSE]
 nonNumericPred<-nonNumericPred[,-6]
 
-test<--glm(deaths~as.numeric(hiact),data = NNA_Data, family = "binomial")
-testform<-asfd
 
-## First crude logit model, mostly for comparison purposes
-## Not actually using the ordinal variables as such b/c it will throw an error. Largely b/c I need more observations (rule of thumb for logit is n>15*p) 
-dlogit_fc1<-glm(deaths~.,data = NNA_Data, family = "binomial")
-cv.dlogit_fc1<-cv.glm(NNA_Data,dlogit_fc1, K=10)
-
-## Try simple stepwise selection first
-
-dlogit_step<-step(dlogit_fc1,direction="both")
-cv.dlogit_step<-cv.glm(NNA_Data,dlogit_step, K=10)
+## Create a crude logit model, mostly for comparison purposes
+dlogit_intercept<-glm(deaths~1,data=NNA_Data,family = "binomial")
+fullformula<-paste("deaths~",paste(colnames(NNA_Data[,-14]),collapse = "+"))
+dlogit_step<-step(dlogit_intercept,scope = fullformula,direction = "both")
 
 ## Using more sophisticated approach (Lasso)
 ### Use parallel
@@ -64,13 +58,9 @@ coef(cv.dlogit_lasso,s="lambda.1se")
 # Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
 
-ResDat<-data.frame("Full"= predict(dlogit_fc1,type = "response"),
+ResDat<-data.frame("Intercept"= predict(dlogit_intercept,type = "response"),
                    "Step"= predict(dlogit_step,type = "response"),
                    "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")))
-
-DevDat<-data.frame("Full"=cv.dlogit_fc1$delta[[1]],
-                   "Step"=cv.dlogit_step$delta[[1]],
-                   "Lasso" = cv.dlogit_lasso$cvm[match(lambda_hat,cv.dlogit_lasso$lambda)])
 
 
 ## Misclass
@@ -97,11 +87,16 @@ confAll<-function(oddsDat,trueDat){
 }
 
 confusion_mats<-confAll(ResDat,NNA_Data$deaths)
-# Maybe do manually later
 
-## Note to self get ROC curve
+getVfromLiL<-function(x,l1,l2) x[[l1]][l2]
+
+resMeasures<-data.table("Accuracy"=lapply(confusion_mats,getVfromLiL,"overall","Accuracy"),
+                        "Acc p-Val"=lapply(confusion_mats,getVfromLiL,"overall","AccuracyPValue"),
+                        "Sensitivity"=lapply(confusion_mats,getVfromLiL,"byClass","Sensitivity"),
+                        "Specificity"=lapply(confusion_mats,getVfromLiL,"byClass","Specificity")) # need to clean up w/ rounding
 
 # Creating and outputing charts/figures for report
+heatmap(cormat,Rowv= NA,Colv = "Rowv", symm = TRUE, main = "Heatmap of correlation for numerical predictors")
 
 
 ## to-do (improve datahandling)
