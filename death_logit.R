@@ -55,12 +55,18 @@ plot(cv.dlogit_lasso)
 
 coef(cv.dlogit_lasso,s="lambda.1se")
 
+## Now without hiact and hostlevel
+
+x.mm2<-model.matrix(~.,NNA_Data[,c(1:7,10:13)])
+cv.dlogit_lasso_limited<-cv.glmnet(x.mm2,NNA_Data$deaths,family="binomial",alpha = 1,nfolds = 10)
+
 # Comparison of results
 ## Can be made more efficient later but not really an issue, Might be able to add parallel
 
 ResDat<-data.frame("Intercept"= predict(dlogit_intercept,type = "response"),
                    "Step"= predict(dlogit_step,type = "response"),
-                   "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")))
+                   "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")),
+                   "Limited"= unname(predict(cv.dlogit_lasso_limited,newx = x.mm2,s="lambda.1se",type="response")))
 
 
 ## Misclass
