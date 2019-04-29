@@ -13,9 +13,10 @@ MIDA dataset contains one record per militarized participant at the dispute leve
 
 ## Objectives:    
 * Prediction of if a MID ends in fatalities based on MIDA and MIDB;  
+* Prediction of the lasting days of a MID given features;
 * Statistical inference on interesting features that are able to lead to some insights, such as the NA values for fatalities is not randomly distributed. A brief display of how they are distributed and some thoughts on the implications for modeling;  
 * Relationships between variables, for instance, Revisionist state and Highest action by state in dispute, Fatality level and Revision type;  
-* Visualization on the prediction and creative findings.  
+* Visualization on the prediction, including ROC curves,misclassification plots, heatmap.  
 
 ## Roadmap
 
