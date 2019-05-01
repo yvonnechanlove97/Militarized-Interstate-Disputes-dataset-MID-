@@ -33,7 +33,21 @@ summary(cars)
  Max.   :25.0   Max.   :120.00  
 ```
 
-Slide With Plot
+Zach's logit
 ========================================================
 
-![plot of chunk unnamed-chunk-2](Final_Pres-figure/unnamed-chunk-2-1.png)
+- Base is a logit regression
+- Used lasso to improve results
+
+***
+
+Yong's logit
+========================================================
+
+Conclusion
+========================================================
+FILLER TEXT
+
+***
+
+FILLER Text

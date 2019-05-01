@@ -22,9 +22,21 @@ David's slide
 summary(cars)
 ```
 
-Slide With Plot
+Zach's logit
 ========================================================
 
-```{r, echo=FALSE}
-plot(cars)
-```
+- Base is a logit regression
+- Used lasso to improve results
+
+***
+
+Yong's logit
+========================================================
+
+Conclusion
+========================================================
+FILLER TEXT
+
+***
+
+FILLER Text
