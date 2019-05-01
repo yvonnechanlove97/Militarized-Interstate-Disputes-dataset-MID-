@@ -74,6 +74,13 @@ MID_Actor=MID_Actor %>%
   mutate(last_days=enddate-startdate)
 MID_Actor[MID_Actor$last_days==0]=1
 
+#let fatality==-9 be NA
+#fatality>0=1
+MID_Actor$fatality[MID_Actor$fatality==-9]=NA
+MID_Actor$fatality[MID_Actor$fatality>0]=1
+#Deal with nas
+MID_Actor=MID_Actor %>% drop_na()
+
 # Write results
 
 saveRDS(MID_Actor,file="MIDB_4.2_Cleaned.rds")
