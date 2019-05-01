@@ -56,7 +56,7 @@ logLoss = function(y, p){
   mean(ifelse(y == 1, -log(p), -log(1 - p)))
 }
 
-logLoss(test$fatality, y_hat1)
+logLoss(test$fatality, n_y_hat1)
 #0.2621403
 
 #transfer to factor recive a lower log-loss
