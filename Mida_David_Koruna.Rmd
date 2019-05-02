@@ -1,0 +1,56 @@
+---
+title: "MIDA Work"
+author: "David Koruna"
+date: "4/28/2019"
+output: pdf_document
+---
+
+```{r}
+mida = read.csv("MIDA_4.2_Cleaned.csv")
+midaneeded = mida[c(1,9,10,11,13,14,15,16,17,18,19,23)]
+df = data.frame(c(1,2,3,4))
+unclean = read.csv("MIDA_4.2.csv")
+library(lsr)
+library(corrplot)
+library(ggplot2)
+```
+
+
+We believe that the positioning of the NA values in "fatlity" is not randomly distributed. Taking a look at the initial values,
+```{r}
+midaneeded[which(is.na(midaneeded$fatality)),]$hostlev
+```
+
+We can see that there is potential for "hostlev" to be influencing "fatality."
+
+```{r}
+qplot(midaneeded[which(is.na(midaneeded$fatality)),]$hostlev, geom = "histogram", binwidth = .5, xlab = "NA Fatality Hostility Levels")
+
+```
+This is shown in the histogram here. It seems that hostility levels involving "Use of Force" or higher are causing missing numbers of fatalities. 
+
+We also want to take a look at correlation between categorical variables. I am choosing to compare "outcome," "settle," "fatality," hiact," "hostlev," "recip" and "ongo2010." We will use Cramer's V for our method of comparison. We will also have to remove NA values to do this analysis, as well as convert our booleans to binary variables.
+
+```{r}
+cramers = na.omit(midaneeded)
+cramers$recip = as.integer(cramers$recip)
+cramers$ongo2010 = as.integer(cramers$ongo2010)
+cramers$outcome = as.numeric(cramers$outcome)
+cramers$settle = as.numeric(cramers$settle)
+cramercor = cor(cramers, use = "pairwise.complete.obs")
+corrplot(cramercor, method = "color", type = "upper", addCoef.col = "black")
+```
+
+```{r}
+midb$stabb = as.numeric(midb$stabb)
+midbcor = midb[-c(4,5)]
+midbcor = cor(midbcor, use = "pairwise.complete.obs")
+corrplot(midbcor, method = "color", type = "upper", addCoef.col = "black")
+```
+
+Mention NA Bias on Fatality
+
+Correlation between variables on the MIDA and MIDB dataset
+
+Different Categorical Variables
+
