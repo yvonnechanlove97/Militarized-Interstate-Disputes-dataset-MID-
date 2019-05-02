@@ -1,4 +1,4 @@
-Final_Pres
+Modeling Fatalities in Militirized Interstate Disputes
 ========================================================
 title: Predicting Deaths in Interstate Militarized Disputes
 author: Yong, Koruna & Cleary
@@ -24,7 +24,7 @@ David's Slide
 
 
 
-Zach's logit
+Modeling on MIDA
 ========================================================
 
 - Base is a logit regression
@@ -32,7 +32,7 @@ Zach's logit
 - Classic trade-off of complexity vs potency
 - Lasso also introduces bias/variance
 
-
+***
 
 ![A suprising result](Final_Pres-figure/AICvSens.png)
 
@@ -53,15 +53,17 @@ Modeling on MIDB
 Conclusion
 ========================================================
 
-Ultimately model outperformed expectations. Combination of better data-cleaning and lasso has produced impressive results.
+Ultimately model outperformed expectations. 
 
 ```{r, echo=FALSE}
-#result_overview<-readRDS("cleary_concsum.rds")
+result_overview<-readRDS("cleary_concsum.rds")
 ```
 
 ```{r, echo= FALSE, results = 'asis'}
-#kable(result_overview)
+kable(result_overview)
 ```
+
+***
 
 Model        | AUC   | Log-loss | Misclassification rate
 -------------|-------|----------|------------------------
