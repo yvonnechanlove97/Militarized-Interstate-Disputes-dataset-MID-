@@ -15,12 +15,12 @@ This projects looks at the militarized interstate dispute (MID) data compiled by
 - Primary objective is to predict if a conflict resulted in any deaths.
 - Number of challenges including need to clean data.
 
-David's Slide
+
 ========================================================
 
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height = 5, fig.width = 6}
 options( width = 10000)
 mida = read.csv("MIDA_4.2_Cleaned.csv")
 midb = read.csv("MIDB_4.2_Cleaned.csv")
@@ -30,7 +30,7 @@ library(corrplot)
 library(ggplot2)
 qplot(midaneeded[which(is.na(midaneeded$fatality)),]$hostlev, geom = "histogram", binwidth = .5, xlab = "NA Fatality Hostility Levels")
 ```
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height = 5, fig.width = 6}
 cramers = na.omit(midaneeded)
 cramers$recip = as.integer(cramers$recip)
 cramers$ongo2010 = as.integer(cramers$ongo2010)

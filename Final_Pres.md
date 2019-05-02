@@ -15,7 +15,7 @@ This projects looks at the militarized interstate dispute (MID) data compiled by
 - Primary objective is to predict if a conflict resulted in any deaths.
 - Number of challenges including need to clean data.
 
-David's Slide
+
 ========================================================
 
 
