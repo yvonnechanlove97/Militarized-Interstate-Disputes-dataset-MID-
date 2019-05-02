@@ -68,6 +68,29 @@ ResDat<-data.frame("Intercept"= predict(dlogit_intercept,type = "response"),
                    "Lasso"= unname(predict(cv.dlogit_lasso,newx = x.mm,s="lambda.1se",type="response")),
                    "Limited"= unname(predict(cv.dlogit_lasso_limited,newx = x.mm2,s="lambda.1se",type="response")))
 
+# A function to calculate log likelihood b/c for some reason I couldn't find one
+## perhaps do it more elegantly
+logitLL<-function(fit,real){
+  n<-length(real)
+  indvll<-vector(length=n)
+  for(i in 1:n){
+    indvll[i]<-real[i]*log(fit[i])+(1-real[i])*log(1-fit[i])
+  }
+  return(sum(indvll))
+}
+
+AIChack<-function(cv.model,fit,real){
+  p<-nnzero(coef(cv.model,s="lambda.1se"))
+  return(-2*logitLL(fit,real)+2*p)
+}
+
+extractcoef<-function(cv.model){
+  allcoef<-coef(cv.model,s="lambda.1se")
+  res<-allcoef[which(allcoef !=0)]
+  names(res)<-dimnames(allcoef)[[1]][which(allcoef !=0)]
+  return(res)
+}
+
 
 ## Misclass
 
@@ -94,15 +117,32 @@ confAll<-function(oddsDat,trueDat){
 
 confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 
-getVfromLiL<-function(x,l1,l2) x[[l1]][l2]
+getVfromLiL<-function(x,l1,l2) x[[l1]][[l2]]
 
-resMeasures<-data.table("Accuracy"=lapply(confusion_mats,getVfromLiL,"overall","Accuracy"),
-                        "Acc p-Val"=lapply(confusion_mats,getVfromLiL,"overall","AccuracyPValue"),
-                        "Sensitivity"=lapply(confusion_mats,getVfromLiL,"byClass","Sensitivity"),
-                        "Specificity"=lapply(confusion_mats,getVfromLiL,"byClass","Specificity")) # need to clean up w/ rounding
+coeflist<-vector(mode="list",length=4)
+coeflist[[1]]<-coef(dlogit_intercept)
+coeflist[[2]]<-coef(dlogit_step)
+coeflist[[3]]<-extractcoef(cv.dlogit_lasso)
+coeflist[[4]]<-extractcoef(cv.dlogit_lasso_limited)
+
+resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"),
+                        "Accuracy"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","Accuracy")),
+                        "Acc p-Val"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","AccuracyPValue")),
+                        "Sensitivity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Sensitivity")),
+                        "Specificity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Specificity")),
+                        "AIC"=c(AIC(dlogit_intercept),
+                                AIC(dlogit_step),
+                                AIChack(cv.dlogit_lasso,ResDat$Lasso,as.numeric(NNA_Data$deaths)),
+                                AIChack(cv.dlogit_lasso_limited,ResDat$Limited,as.numeric(NNA_Data$deaths))))
+resMeasures[,Model := as.factor(Model)]
+dispRes<-resMeasures
+dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity") := round(resMeasures[,-1],4)]
+
 
 # Creating and outputing charts/figures for report
 heatmap(cormat,Rowv= NA,Colv = "Rowv", symm = TRUE, main = "Heatmap of correlation for numerical predictors")
 
+ggplot(data=dispRes,aes(x=Model,y=Accuracy))+
+  geom_bar(stat = "identity")
 
 ## to-do (improve datahandling)
