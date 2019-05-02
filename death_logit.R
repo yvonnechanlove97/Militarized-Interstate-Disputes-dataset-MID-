@@ -7,6 +7,7 @@ library(ggplot2)
 library(caret)
 library(e1071)
 library(data.table)
+library(dplyr)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -124,6 +125,20 @@ coeflist[[1]]<-coef(dlogit_intercept)
 coeflist[[2]]<-coef(dlogit_step)
 coeflist[[3]]<-extractcoef(cv.dlogit_lasso)
 coeflist[[4]]<-extractcoef(cv.dlogit_lasso_limited)
+
+coefmerger <-function(listofcoef){
+  n<-length(listofcoef)
+  res<-data.frame("Coef"=factor())
+  for(i in 1:n){
+    temp<-data.frame("Coef"=names(listofcoef[[i]]),unname(listofcoef[[i]]))
+    res<-full_join(res,temp,by="Coef")
+  }
+  return(res)
+}
+# The warnings are proof that it works
+
+coefmat<-coefmerger(coeflist)
+colnames(coefmat)[-1]<-c("Intercept","Stepwise","Lasso","Reduced Lasso")
 
 resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"),
                         "Accuracy"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","Accuracy")),
