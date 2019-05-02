@@ -168,6 +168,8 @@ AICvSens<-ggplot(data=dispRes,aes(x=AIC,y=Sensitivity,color=Model))+
 
 ggsave("AICvSens.png",plot = AICvSens)
 
-
+plot(cv.dlogit_lasso$glmnet.fit,"lambda",main="Coefficient Shrinkage")
+abline(v=log(cv.dlogit_lasso$lambda.min))
+abline(v=log(cv.dlogit_lasso$lambda.1se))
 
 ## to-do (improve datahandling)
