@@ -66,8 +66,8 @@ Yong's logit
 - A.Logistic model with numeric variables  
 - B.Logistic model with factor variables  
 - C.Linear regression model to predict lasting days of a MID  
-![roc1](roc1.png)
-![roc2](roc2.png)
+![MIDB](MIDB.png)
+
 
 Conclusion
 ========================================================
