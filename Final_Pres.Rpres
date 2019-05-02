@@ -53,16 +53,15 @@ Zach's logit
 - Classic trade-off of complexity vs potency
 - Lasso also introduces bias/variance
 
-***
+
 
 ![A suprising result](AICvSens.png)
 
 ![I think it is pretty](shrinkplot.png)
 
 
-Yong's logit
+Modeling on MIDB
 ========================================================
-## Modeling on MIDB
 - A.Logistic model with numeric variables  
 - B.Logistic model with factor variables  
 - C.Linear regression model to predict lasting days of a MID  
@@ -86,6 +85,6 @@ Model        | AUC   | Log-loss | Misclassification rate
 -------------|-------|----------|------------------------
 Logi numeric |0.9249 |  0.2621  |  0.1399   
 Logi factor  |0.9421 |  0.2185  |  0.0979
-***
+
 
 FILLER Text
