@@ -111,7 +111,8 @@ confAll<-function(oddsDat,trueDat){
   res<-vector(mode="list",length=N)
   for(i in 1:N){
     res[[i]]<-confusionMatrix(as.factor(transFitted(oddsDat[,i])),
-                            as.factor(trueDat))
+                            as.factor(trueDat),
+                            positive = "TRUE")
   }
   return(res)
 }
@@ -139,6 +140,10 @@ coefmerger <-function(listofcoef){
 
 coefmat<-coefmerger(coeflist)
 colnames(coefmat)[-1]<-c("Intercept","Stepwise","Lasso","Reduced Lasso")
+rownames(coefmat)<-coefmat[,1]
+coefmat[]<-round(coefmat[,-1],4)
+
+saveRDS(coefmat,file="coefficients.rds")
 
 resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"),
                         "Accuracy"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","Accuracy")),
@@ -157,7 +162,12 @@ dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity") := round(resMeasu
 # Creating and outputing charts/figures for report
 heatmap(cormat,Rowv= NA,Colv = "Rowv", symm = TRUE, main = "Heatmap of correlation for numerical predictors")
 
-ggplot(data=dispRes,aes(x=Model,y=Accuracy))+
-  geom_bar(stat = "identity")
+AICvSens<-ggplot(data=dispRes,aes(x=AIC,y=Sensitivity,color=Model))+
+  geom_point()+
+  geom_text(aes(label=Model),vjust=1.5)
+
+ggsave("AICvSens.png",plot = AICvSens)
+
+
 
 ## to-do (improve datahandling)
