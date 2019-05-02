@@ -156,8 +156,9 @@ resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"
                                 AIChack(cv.dlogit_lasso_limited,ResDat$Limited,as.numeric(NNA_Data$deaths))))
 resMeasures[,Model := as.factor(Model)]
 dispRes<-resMeasures
-dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity") := round(resMeasures[,-1],4)]
+dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity","AIC") := round(resMeasures[,-1],3)]
 
+saveRDS(dispRes,file="cleary_concsum.rds")
 
 # Creating and outputing charts/figures for report
 heatmap(cormat,Rowv= NA,Colv = "Rowv", symm = TRUE, main = "Heatmap of correlation for numerical predictors")
