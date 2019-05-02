@@ -15,11 +15,34 @@ This projects looks at the militarized interstate dispute (MID) data compiled by
 Primary objective is to predict if a conflict resulted in any deaths.
 - Number of challenges including need to clean data.
 
-David's slide
+
 ========================================================
 
-```{r}
-summary(cars)
+
+
+```{r, echo = FALSE, fig.height = 5, fig.width = 6}
+options( width = 10000)
+mida = read.csv("MIDA_4.2_Cleaned.csv")
+midb = read.csv("MIDB_4.2_Cleaned.csv")
+midaneeded = mida[c(1,9,10,11,13,14,15,16,17,18,19,23)]
+library(lsr)
+library(corrplot)
+library(ggplot2)
+qplot(midaneeded[which(is.na(midaneeded$fatality)),]$hostlev, geom = "histogram", binwidth = .5, xlab = "NA Fatality Hostility Levels")
+```
+```{r, echo = FALSE, fig.height = 5, fig.width = 6}
+cramers = na.omit(midaneeded)
+cramers$recip = as.integer(cramers$recip)
+cramers$ongo2010 = as.integer(cramers$ongo2010)
+cramers$outcome = as.numeric(cramers$outcome)
+cramers$settle = as.numeric(cramers$settle)
+cramercor = cor(cramers, use = "pairwise.complete.obs")
+corrplot(cramercor, method = "color", type = "upper", addCoef.col = "black", title = "MIDA Correlation Plot", mar=c(0,0,1,0))
+
+midb$stabb = as.numeric(midb$stabb)
+midbcor = midb[-c(4,5)]
+midbcor = cor(midbcor, use = "pairwise.complete.obs")
+corrplot(midbcor, method = "color", type = "upper", addCoef.col = "black", title = "MIDB Correlation Plot", mar=c(0,0,1,0))
 ```
 
 Zach's logit
