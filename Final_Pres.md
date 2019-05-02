@@ -39,9 +39,8 @@ Zach's logit
 ![I think it is pretty](Final_Pres-figure/shrinkplot.png)
 
 
-Yong's logit
+Modeling on MIDB
 ========================================================
-## Modeling on MIDB
 - A.Logistic model with numeric variables  
 - B.Logistic model with factor variables  
 - C.Linear regression model to predict lasting days of a MID
@@ -59,9 +58,16 @@ Ultimately model outperformed expectations. Combination of better data-cleaning 
 
 
 
+|Model         | Accuracy| Acc p-Val| Sensitivity| Specificity|      AIC|
+|:-------------|--------:|---------:|-----------:|-----------:|--------:|
+|Intercept     |    0.792|     0.513|       0.000|       1.000| 2076.748|
+|Stepwise      |    0.926|     0.000|       0.799|       0.960|  822.502|
+|Lasso         |    0.925|     0.000|       0.787|       0.961|  861.132|
+|Reduced Lasso |    0.834|     0.000|       0.244|       0.989| 1412.988|
 
 Model        | AUC   | Log-loss | Misclassification rate
 -------------|-------|----------|------------------------
 Logi numeric |0.9249 |  0.2621  |  0.1399   
 Logi factor  |0.9421 |  0.2185  |  0.0979
+
 
