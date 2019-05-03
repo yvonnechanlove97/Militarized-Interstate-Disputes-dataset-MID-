@@ -1,0 +1,29 @@
+---
+title: "Predicting Violence in Militarized Interstate Disputes"
+author: "Cleary, Koruna & Yong"
+date: "5/2/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+# Initialize all libraries in this chunk
+library(texreg)
+library(xtable) # I think it makes nicer tables see https://cran.r-project.org/web/packages/xtable/vignettes/xtableGallery.pdf
+
+
+knitr::opts_chunk$set(echo = TRUE)
+opts_chunk$set(eval=T,echo=F,fig.pos="H",results="hide",message=F,cache=T,fig.pos="H",wrapper=T)
+options(xtable.comment = FALSE)
+knitr::opts_chunk$set(fig.pos = 'H')
+```
+
+# Section header
+## By John Doe
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer feugiat sem vel nulla malesuada laoreet. Proin blandit vel tellus vitae molestie. Maecenas vel posuere purus. Nulla consequat sem nec neque congue, ullamcorper interdum ante cursus. Aenean et dapibus nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris ut est quis eros porta hendrerit. Fusce condimentum justo odio, et dignissim arcu pharetra vehicula. Duis sagittis et dui eu lacinia.
+
+```{r foo, echo=TRUE,results='asis'}
+# you can override global settings on a by chunk basis
+# can change output format
+# can name codeblocks
+```
