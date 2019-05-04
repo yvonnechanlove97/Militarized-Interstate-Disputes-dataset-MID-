@@ -102,8 +102,14 @@ plot(day_model$residuals)
 #not very normal
 qqnorm(day_model$residuals)
 
+#stepwise selection
+step_day_model=step(day_model, direction="both")
+plot(step_day_model$residuals)
+#not very normal
+qqnorm(step_day_model$residuals)
+
 #try log transformation
-day_model2=lm(log(last_days)~.,data=train)
+day_model2=lm(log(last_days)~sidea + revtype1 + fatality + hostlev + ori.,data=train)
 #homogeneous
 plot(day_model2$residuals)
 #normal distributed
@@ -113,5 +119,5 @@ day_yhat_log=predict(day_model2,newdata=test)
 #rmse is 0.0491256 which is very good
 rmse=sqrt(mean(day_yhat_log - log(test$last_days))^2)
 
-#categorical variables association: frequency table
+
 
