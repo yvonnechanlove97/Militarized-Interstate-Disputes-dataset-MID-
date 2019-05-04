@@ -72,7 +72,7 @@ MID_Actor=tidyr::unite(MID_Actor,'enddate',c("endyear","endmon","endday"),sep='-
 MID_Actor=MID_Actor %>% 
   mutate_at(c('startdate','enddate'),function(x){as.Date(x)}) %>%
   mutate(last_days=enddate-startdate)
-MID_Actor[MID_Actor$last_days==0]=1
+MID_Actor$last_days[MID_Actor$last_days==0]=1
 
 #let fatality==-9 be NA
 #fatality>0=1
