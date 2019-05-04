@@ -72,7 +72,8 @@ MID_Actor=tidyr::unite(MID_Actor,'enddate',c("endyear","endmon","endday"),sep='-
 MID_Actor=MID_Actor %>% 
   mutate_at(c('startdate','enddate'),function(x){as.Date(x)}) %>%
   mutate(last_days=enddate-startdate)
-MID_Actor[MID_Actor$last_days==0]=1
+MID_Actor$last_days[MID_Actor$last_days==0]=1
+MID_Actor$last_days=as.numeric(MID_Actor$last_days)
 
 #let fatality==-9 be NA
 #fatality>0=1
@@ -80,7 +81,8 @@ MID_Actor$fatality[MID_Actor$fatality==-9]=NA
 MID_Actor$fatality[MID_Actor$fatality>0]=1
 #Deal with nas
 MID_Actor=MID_Actor %>% drop_na()
+MID_Actor=MID_Actor %>% select(-c("dispnum3","stabb","ccode", "startdate","enddate"))
 
 # Write results
-
+write.csv(MID_Actor,'MIDB_4.2_Cleaned.csv')
 saveRDS(MID_Actor,file="MIDB_4.2_Cleaned.rds")
