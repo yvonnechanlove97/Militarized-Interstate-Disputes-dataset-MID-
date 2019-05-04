@@ -200,7 +200,7 @@ print.xtable(xtable(allcoef,caption = "Coefficients from all models"),floating =
 \pagebreak
 
 # Modeling for B
-
+## Yong's Work
 ## Data Cleaning  
 
 Used Dplyr,tidyr,data.table libraries to manipulate the data more easily and made the cleaning procedure faster.  
@@ -240,8 +240,8 @@ Logi factor  |0.9421 |  0.2185  |  0.0979
 
 ### Linear regression model to predict lasting days of a MID  
 The lasting days of MIDs range from 1 to 4903, it would be very interesting to find the relationship between the lasting days and other predictors.   
-1. we fitted a linear regression for lasting days. Then we used stepwise selection to perform model selection. We found that the residuals of the selected model with the lowest AIC turned out not following the normal distribution.    
-2. Therefore, we transformed the respond into log-response and refitted the model.  
+* We fitted a linear regression for lasting days. Then we used stepwise selection to perform model selection. We found that the residuals of the selected model with the lowest AIC turned out not following the normal distribution.    
+* Therefore, we transformed the respond into log-response and refitted the model.  
 
 ![Residuals](Final project_figure/res1.png){width=380px}
 <br>
