@@ -151,7 +151,10 @@ coefmerger <-function(listofcoef){
 coefmat<-coefmerger(coeflist)
 colnames(coefmat)[-1]<-c("Intercept","Stepwise","Lasso","Reduced Lasso")
 rownames(coefmat)<-coefmat[,1]
-coefmat[]<-round(coefmat[,-1],4)
+coefmat<-round(coefmat[,-1],4)
+
+test<-coefmat
+test2<-test[,-1]
 
 saveRDS(coefmat,file="coefficients.rds")
 

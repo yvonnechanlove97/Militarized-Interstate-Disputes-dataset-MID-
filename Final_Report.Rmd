@@ -21,6 +21,8 @@ library(dplyr)
 library(doParallel)
 library(summarytools)
 options(xtable.comment = FALSE)
+
+set.seed(1569787)
 ```
 
 # Brief Introduction
@@ -271,7 +273,7 @@ dfSummary(NNA_Data,graph.col=FALSE,plain.ascii = FALSE,style = "grid")
 ```
 
 
-```{r codeappendix,eval=FALSE}
+```{r codeappendix,warning=FALSE,eval=FALSE}
 # The code in this chunk is not actually used as I have already created outputs that I can just read in. However it is available here to see how that was made without rooting through my mad scratchpad (death_logit)
 
 # This first section produces coefficients.rds
