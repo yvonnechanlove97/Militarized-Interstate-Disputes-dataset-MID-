@@ -1,0 +1,16 @@
+base
+texreg
+xtable
+boot
+Matrix
+foreach
+glmnet
+ggplot2
+lattice
+caret
+e1071
+data.table
+dplyr
+iterators
+doParallel
+summarytools
