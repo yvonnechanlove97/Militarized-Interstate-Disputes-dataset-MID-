@@ -243,20 +243,24 @@ The lasting days of MIDs range from 1 to 4903, it would be very interesting to f
 * We fitted a linear regression for lasting days. Then we used stepwise selection to perform model selection. We found that the residuals of the selected model with the lowest AIC turned out not following the normal distribution.    
 * Therefore, we transformed the respond into log-response and refitted the model.  
 
-![Residuals](Final project_figure/res1.png){width=380px}
-<br>
-There are some outliers but overall the residuals are constant variance.    
+![Residuals](Final project_figure/res1.png){width=380px}  
+<br>  
 
-![Q-Q Plot](Final project_figure/qq_bef.png){width=380px} 
-<br>
+There are some outliers but overall the residuals are constant variance.  
+
+![Q-Q Plot](Final project_figure/qq_bef.png){width=380px}   
+<br>  
+
 The trend is far from a straight line, therefore the residuals are not normally distributed.  
 
-![Transformed Residuals](Final project_figure/res.png){width=380px}
-<br>
+![Transformed Residuals](Final project_figure/res.png){width=380px}  
+<br>  
+
 After transformation, the residuals plot shows that the residuals are homogeneous with points evenly spreading out below and above 0.  
 
-![Transformed Q-Q plot](Final project_figure/qq.png){width=380px}
-<br>
+![Transformed Q-Q plot](Final project_figure/qq.png){width=380px}  
+<br>  
+
 Also the QQplot shows that the new residuals closely follow the normal distribution. Then we predicted the respond for the test data set and calculate for the RMSE(Root Mean Square Error) of 0.05467609 which indicates that the model is a good fit.  
 
 
