@@ -1,7 +1,7 @@
 ---
 title: "Predicting Violence in Militarized Interstate Disputes"
 author: "Cleary, Koruna & Yong"
-date: "5/2/2019"
+date: "5/4/2019"
 output: pdf_document
 ---
 
@@ -19,22 +19,27 @@ library(e1071)
 library(data.table)
 library(dplyr)
 library(doParallel)
+library(summarytools)
 options(xtable.comment = FALSE)
 ```
 
-# Section header
-## By John Doe
+# Brief Introduction
+## Zach Cleary's Work
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer feugiat sem vel nulla malesuada laoreet. Proin blandit vel tellus vitae molestie. Maecenas vel posuere purus. Nulla consequat sem nec neque congue, ullamcorper interdum ante cursus. Aenean et dapibus nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris ut est quis eros porta hendrerit. Fusce condimentum justo odio, et dignissim arcu pharetra vehicula. Duis sagittis et dui eu lacinia.
-
-```{r foo, echo=TRUE,results='asis'}
-# you can override global settings on a by chunk basis
-# can change output format
-# can name codeblocks
-```
+Militirized interstate disputes (MIDs) are tense moments in international diplomacy. The formal definition is “Militarized interstate disputes are united historical cases of conflict in which the threat, display or use of military force short of war by one member state is explicitly directed towards the government, official representatives, official forces, property, or territory of another state. Disputes are composed of incidents that range in intensity from threats to use force to actual combat short of war” (Jones et al. 1996: 163). Whenever a MID occurs there is a risk of violence and deaths. Our objective is to attempt to predict if a given incident will results in fatalities. While the vast majority of MIDs do not result in fatalities those that do can have signifigant impacts. To do so we have drawn upon the Correlates of War extensive MID data. Said data is split into two data-sets. The A data-set is organized by incident and the B by actor.
 
 # MIDA Models
+## Zach Cleary's Work
 ## Description of MIDA and Goal
+
+MIDA is the portion of the MID data organized by actor. The primary objective of this section is to fit a relatively simple but effective logistic regression for predicting if there will be fatalities. Several models are fitted and then compared in the concluding portion of this segment. The full summary statistics are presented in an appendix at the end of the report. However, a few variables require explation before proceeding.
+
+* outcome: A catagorical variable that records how the conflict ended.
+* settle: A catagorical variable that records manner in which the final agreement was made. Was the final settlment negotiated or imposed?
+* hiact & hostlev: Strongly related ordinal variables that measure the level of escalation reached.
+* deaths: The boolean objective variable. It is true if there were deaths.
+
+Since hiact and hostlev are arguably too potent a more limited model is fitted without them.
 
 ## Data Cleaning
 
@@ -56,7 +61,14 @@ NNA_Data<-as.data.table(na.omit(Raw_Data[,c(4:5,7:10,13:19,23,27)]))
 xtable(as.table(NAcount[NAcount != 0]),caption="Counts of NA entries",include.colnames=FALSE)
 ```
 
-Before fitting any models the data required a second round of cleaning. This mostly consisted of removing purely administrative variables such as the MIDs internal ID number. Additionaly I dropped the fatalpre and fatality variables as they were redundent given my binary objective variable deaths. Next I ommited all MIDs with missing values. This was nessisary for the modeling techniques I used but did result in a ~12% reduction in entries. More problematicaly it probably biased the resulting models as prior analysis indicates that violent incidents are more likely to having missing information.
+Before fitting any models the data required a second round of cleaning utilizing data.table. This mostly consisted of the following actions:
+
+* Removing purely administrative variables such as the MIDs internal ID number.
+* Dropping the fatalpre and fatality variables as they were redundant given the objective variable.
+* Dropping variables such as endday that were deemed uninteresting/unnecessary. The end month might give insight into fighting seasons but days have no such value.
+* Omitting all MIDs with missing values. Since this step is performed last the 2030 missing dispnum4 entries are not a problem.
+
+This last action was necessary for the modeling techniques I used but did result in a ~12% reduction in entries. More problematically it probably biased the resulting models as prior analysis indicates that violent incidents are more likely to having missing information.
 
 ## Baseline Models
 
@@ -65,9 +77,14 @@ Before fitting any models the data required a second round of cleaning. This mos
 dlogit_intercept<-glm(deaths~1,data=NNA_Data,family = "binomial")
 fullformula<-paste("deaths~",paste(colnames(NNA_Data[,-14]),collapse = "+"))
 dlogit_step<-step(dlogit_intercept,scope = fullformula,direction = "both")
+## Version built to permit cv
+NNA_Data_hiactCond<-NNA_Data
+levels(NNA_Data_hiactCond$hiact)<-list("1"='1',"3"=c("2","3","4"),"7"="7","8"="8","10"="10","11"="11","12"="12",
+                                 "13"="13","14"="14","15"="15","16"="16","17"="17","18"=c("18","19"),
+                                                           "20"="20","21"=c("21","22"))
 ```
 
-Two models were created for comparison purposes. One is a simple intecept only model. The second is the product of automated stepwise selection based on the AIC starting from the intercept only model. The stepwise selectin process throws out numerous warnings stating that "fitted probabilities numerically 0 or 1 occurred." This is expected behavior. The ordinal variables (hiact,hostlev) have not been converted to numeric aproximations. This means that the glm function attempts to use k-1 polynomial contrasts. Unfortunatly there is not sufficient data to fully support this and thus the warnings. If the intention was to proceed with a glm() based model steps would be taken to rectify the situation. However, in this case it is intentionally left to show the improvement of the alternative method.
+Two models were created for comparison purposes. One is a simple intercept only model. The second is the product of automated step-wise selection based on the AIC starting from the intercept only model. The step-wise selection process throws out numerous warnings stating that "fitted probabilities numerically 0 or 1 occurred." This is expected behavior. The ordinal variables (hiact,hostlev) have not been converted to numeric approximations. This means that the glm function attempts to use k-1 polynomial contrasts. Unfortunately, there is not sufficient data to fully support this and thus the warnings. If the intention was to proceed with a glm() based model steps would be taken to rectify the situation. However, in this case it is intentionally left to show the improvement of the alternative method.
 
 ## LASSO Models
 
@@ -89,11 +106,11 @@ cv.dlogit_lasso_limited<-cv.glmnet(x.mm2,NNA_Data$deaths,family="binomial",alpha
 stopImplicitCluster()
 ```
 
-In order to simultaniously improve results and conduct variable selection LASSO was utilized in addition to the logistic regression. This was accomplished via the cv.glmnet() function of the glmnet package. While a complete explanation of the LASSO technique is beyond the scope of this project there are a few elements that require exploration. The cv.glmnet function
+In order to simultaneously improve results and conduct variable selection the least absolute shrinkage and selection operator (LASSO) technique was utilized in addition to the logistic regression. This was accomplished via the cv.glmnet() function of the glmnet package. While a complete explanation of the LASSO technique is beyond the scope of this project there are a few elements that require exploration. I utilized cv.glmnet()'s built in parallel comparability as the function can be computationally expensive. The cv.glmnet function fits #folds+1 LASSO logistic regressions. The first fit is used to produce a sequence of lambda values (the tuning parameter) and the rest are traditional cv fits to evaluate the model. The performance of the various lambda values can be seen below. I have chosen to select not the lambda that minimizes the mean cross-validated error but "lambda.1se" ( `r round(cv.dlogit_lasso$lambda.1se,3)` for the main LASSO model) which is the lambda within one standard error that gives the most regularized model. This is due to desire to use LASSO as a variable selection technique. The second plot below shows how the lambda values influence the coefficients. From right to left the two lines represent the lambda which minimizes error and the lambda.1se. It is apparent that using lambda.1se results in a significantly simpler model.
 
 ```{r LASSO plots}
 par(mfrow=c(1,2))
-plot(cv.dlogit_lasso)
+plot(cv.dlogit_lasso,main="Lambda Selection")
 plot(cv.dlogit_lasso$glmnet.fit,"lambda",main="Coefficient Shrinkage")
 abline(v=log(cv.dlogit_lasso$lambda.min))
 abline(v=log(cv.dlogit_lasso$lambda.1se))
@@ -171,12 +188,28 @@ finalres<-readRDS("cleary_concsum.rds")
 ```{r,results='asis'}
 xtable(allcoef,caption = "Coefficients from all modesl")
 ```
+
+Above is a table that shows the coefficients of all the models while the table below summarizes key measures about their performance. As can be seen the step-wise model is by far the most complicated. This is why the LASSO model is preferred even though it performs marginally worse. The deviance values are calculated from 10-fold cross validation. It is clear that the key performance metric is sensitivity. Most MIDs do not end in deaths but correctly predicting those rare instances are crucial. Thus it is unacceptable to use a model such as the intercept with relatively high accuracy but abysmal sensitivity. It is also noteworthy that the reduced LASSO model is still relatively effective predictor even though it lacks to potent retrospective variables hiact and hostlev.
+
 ```{r,results='asis'}
 xtable(finalres,caption="Overview of results")
 ```
 
+\newpage
+
+# Citation
+
+Palmer, Glenn, Vito D'Orazio, Michael R. Kenwick, and Roseanne W. McManus. Forthcoming. “Updating the Militarized Interstate Dispute Data: A Response to Gibler, Miller, and Little.” International Studies Quarterly.
+
+# MIDA Appendix: Complete Summary
+
+```{r,results='asis'}
+dfSummary(NNA_Data,graph.col=FALSE,plain.ascii = FALSE,style = "grid")
+```
+
+
 ```{r codeappendix,eval=FALSE}
-# The code in this chunk is not actually used as I have already created outputs that I can just read in. However it is available hear to see how that was made without rooting through my mad scratchpad (death_logit)
+# The code in this chunk is not actually used as I have already created outputs that I can just read in. However it is available here to see how that was made without rooting through my mad scratchpad (death_logit)
 
 # This first section produces coefficients.rds
 
@@ -205,5 +238,24 @@ rownames(coefmat)<-coefmat[,1]
 coefmat[]<-round(coefmat[,-1],4)
 
 # This second section produces cleary_concsum.rds
+
+resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"),
+                        "Accuracy"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","Accuracy")),
+                        "Acc p-Val"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","AccuracyPValue")),
+                        "Sensitivity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Sensitivity")),
+                        "Specificity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Specificity")),
+                        "Deviance"=c(cv.glm(NNA_Data,dlogit_intercept,K=10)$delta[[1]],
+                                     cv.glm(NNA_Data_hiactCond,dlogit_step,K=10)$delta[[1]],
+                                     cv.dlogit_lasso$cvm[which(cv.dlogit_lasso$lambda == cv.dlogit_lasso$lambda.1se)],
+                                     cv.dlogit_lasso_limited$cvm[which(cv.dlogit_lasso_limited$lambda == cv.dlogit_lasso_limited$lambda.1se)]),
+                        "AIC"=c(AIC(dlogit_intercept),
+                                AIC(dlogit_step),
+                                AIChack(cv.dlogit_lasso,ResDat$Lasso,as.numeric(NNA_Data$deaths)),
+                                AIChack(cv.dlogit_lasso_limited,ResDat$Limited,as.numeric(NNA_Data$deaths))))
+
+
+resMeasures[,Model := as.factor(Model)]
+dispRes<-resMeasures
+dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity","Deviance","AIC") := round(resMeasures[,-1],3)]
 
 ```

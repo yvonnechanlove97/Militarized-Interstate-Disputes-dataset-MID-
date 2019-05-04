@@ -172,7 +172,7 @@ resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"
 
 resMeasures[,Model := as.factor(Model)]
 dispRes<-resMeasures
-dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity","AIC") := round(resMeasures[,-1],3)]
+dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity","Deviance","AIC") := round(resMeasures[,-1],3)]
 
 saveRDS(dispRes,file="cleary_concsum.rds")
 
