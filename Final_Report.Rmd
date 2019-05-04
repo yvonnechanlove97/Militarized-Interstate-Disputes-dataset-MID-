@@ -20,6 +20,7 @@ library(data.table)
 library(dplyr)
 library(doParallel)
 library(summarytools)
+library(corrplot)
 options(xtable.comment = FALSE)
 
 set.seed(1569787)
@@ -29,6 +30,26 @@ set.seed(1569787)
 ## Zach Cleary's Work
 
 Militirized interstate disputes (MIDs) are tense moments in international diplomacy. The formal definition is “Militarized interstate disputes are united historical cases of conflict in which the threat, display or use of military force short of war by one member state is explicitly directed towards the government, official representatives, official forces, property, or territory of another state. Disputes are composed of incidents that range in intensity from threats to use force to actual combat short of war” (Jones et al. 1996: 163). Whenever a MID occurs there is a risk of violence and deaths. Our objective is to attempt to predict if a given incident will results in fatalities. While the vast majority of MIDs do not result in fatalities those that do can have signifigant impacts. To do so we have drawn upon the Correlates of War extensive MID data. Said data is split into two data-sets. The A data-set is organized by incident and the B by actor.
+
+
+# Data Exploration
+## David Koruna
+
+For this particular project, we are taking a look at "fatality" as the response variable for both the MIDA and MIDB dataset. For the "fatality" variable, we noticed that there were about 248 missing records out of the 2292 observations. I wanted to take a look at why that may be the case. Upon examination of the Missing NA values, I was able to find that in most cases were number of fatalities were missing, hostlity levels were at a 4 or higher. This indicated that a hostility level associated with "use of force" or higher was causing fatality reports to go missing. This can be visualized easily using a histogram:
+
+![Histogram of Missing NA Fatalities](Final_Pres-figure/unnamed-chunk-1-1.png)
+\newline
+We also wanted to take a look at the correlation between different variables in the datasets. Starting with the MIDA set:
+
+![MIDA Correlation Table](Final_Pres-figure/unnamed-chunk-2-1.png)
+\newline
+We see high levels of correlation between "outcome" - "settle," "maxdur" - "mindur," and "hiact" - "hostlevel." These correlations all make sense. The outcome of the dispute increases as settlement increases. Min duration and Max duration would scale together, as estimated duration of the dispute is computed in an interval. It also makes sense that highest action taken increases with hostility level, as these variables are directly related with each other. 
+
+Looking at the MIDB dataset:
+
+![MIDB Correlation Table](Final_Pres-figure/unnamed-chunk-2-2.png)
+
+Here, we are seeing high amounts of correlation between "revstate" - "revtype1" and "hiact" - "hostlev." Again, these high correlations make sense and can be explained by the dataset. Whether or not a state is a revisionist state should cause a direct increase in revision type, because if "revstate" is 0 then "revtype1" is automatically set to 0 as well, as there's no type of revision. 
 
 # MIDA Models
 ## Zach Cleary's Work
