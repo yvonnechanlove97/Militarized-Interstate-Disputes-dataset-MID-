@@ -8,6 +8,7 @@ library(caret)
 library(e1071)
 library(data.table)
 library(dplyr)
+library(doParallel)
 
 ## For reproducibility, check without
 set.seed(1569787)
@@ -18,10 +19,11 @@ Raw_Data<-readRDS("MIDA_4.2_Cleaned.rds")
 
 ## Problem 1 the excessive NAs
 
-colSums(is.na(Raw_Data))
+NAcount<-colSums(is.na(Raw_Data))
+NAcount[NAcount != 0]
 
 ## Some quick pruning, probably should do more intenstive checks to determin what to remove
-NNA_Data<-as.data.table(na.omit(Raw_Data[,c(4:5,7:9,13:19,23,27)]))
+NNA_Data<-as.data.table(na.omit(Raw_Data[,c(4:5,7:10,13:19,23,27)]))
 
 ## What are the problems?
 
@@ -45,13 +47,15 @@ fullformula<-paste("deaths~",paste(colnames(NNA_Data[,-14]),collapse = "+"))
 dlogit_step<-step(dlogit_intercept,scope = fullformula,direction = "both")
 
 ## Using more sophisticated approach (Lasso)
-### Use parallel
+
 x.mm<-model.matrix(~.,NNA_Data[,1:13])
 
+registerDoParallel(16)
 cv.dlogit_lasso<-cv.glmnet(x.mm,NNA_Data$deaths,family="binomial",alpha = 1,nfolds = 10)
+stopImplicitCluster()
 
 ### Look at results (Use lambda.1se as it is more conservative/favors simpler models)
-lambda_hat<-cv.dlogit_lasso$lambda.1se
+
 plot(cv.dlogit_lasso)
 
 coef(cv.dlogit_lasso,s="lambda.1se")
@@ -59,10 +63,11 @@ coef(cv.dlogit_lasso,s="lambda.1se")
 ## Now without hiact and hostlevel
 
 x.mm2<-model.matrix(~.,NNA_Data[,c(1:7,10:13)])
+registerDoParallel(16)
 cv.dlogit_lasso_limited<-cv.glmnet(x.mm2,NNA_Data$deaths,family="binomial",alpha = 1,nfolds = 10)
+stopImplicitCluster()
 
 # Comparison of results
-## Can be made more efficient later but not really an issue, Might be able to add parallel
 
 ResDat<-data.frame("Intercept"= predict(dlogit_intercept,type = "response"),
                    "Step"= predict(dlogit_step,type = "response"),
@@ -70,7 +75,6 @@ ResDat<-data.frame("Intercept"= predict(dlogit_intercept,type = "response"),
                    "Limited"= unname(predict(cv.dlogit_lasso_limited,newx = x.mm2,s="lambda.1se",type="response")))
 
 # A function to calculate log likelihood b/c for some reason I couldn't find one
-## perhaps do it more elegantly
 logitLL<-function(fit,real){
   n<-length(real)
   indvll<-vector(length=n)
