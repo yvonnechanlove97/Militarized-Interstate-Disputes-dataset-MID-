@@ -42,9 +42,15 @@ nonNumericPred<-nonNumericPred[,-6]
 
 
 ## Create a crude logit model, mostly for comparison purposes
+
 dlogit_intercept<-glm(deaths~1,data=NNA_Data,family = "binomial")
 fullformula<-paste("deaths~",paste(colnames(NNA_Data[,-14]),collapse = "+"))
 dlogit_step<-step(dlogit_intercept,scope = fullformula,direction = "both")
+## Version built to permit cv
+NNA_Data_hiactCond<-NNA_Data
+levels(NNA_Data_hiactCond$hiact)<-list("1"='1',"3"=c("2","3","4"),"7"="7","8"="8","10"="10","11"="11","12"="12",
+                                 "13"="13","14"="14","15"="15","16"="16","17"="17","18"=c("18","19"),
+                                                           "20"="20","21"=c("21","22"))
 
 ## Using more sophisticated approach (Lasso)
 
@@ -154,10 +160,16 @@ resMeasures<-data.table("Model"=c("Intercept","Stepwise","Lasso","Reduced Lasso"
                         "Acc p-Val"=as.numeric(lapply(confusion_mats,getVfromLiL,"overall","AccuracyPValue")),
                         "Sensitivity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Sensitivity")),
                         "Specificity"=as.numeric(lapply(confusion_mats,getVfromLiL,"byClass","Specificity")),
+                        "Deviance"=c(cv.glm(NNA_Data,dlogit_intercept,K=10)$delta[[1]],
+                                     cv.glm(NNA_Data_hiactCond,dlogit_step,K=10)$delta[[1]],
+                                     cv.dlogit_lasso$cvm[which(cv.dlogit_lasso$lambda == cv.dlogit_lasso$lambda.1se)],
+                                     cv.dlogit_lasso_limited$cvm[which(cv.dlogit_lasso_limited$lambda == cv.dlogit_lasso_limited$lambda.1se)]),
                         "AIC"=c(AIC(dlogit_intercept),
                                 AIC(dlogit_step),
                                 AIChack(cv.dlogit_lasso,ResDat$Lasso,as.numeric(NNA_Data$deaths)),
                                 AIChack(cv.dlogit_lasso_limited,ResDat$Limited,as.numeric(NNA_Data$deaths))))
+
+
 resMeasures[,Model := as.factor(Model)]
 dispRes<-resMeasures
 dispRes[,c("Accuracy","Acc p-Val","Sensitivity","Specificity","AIC") := round(resMeasures[,-1],3)]
