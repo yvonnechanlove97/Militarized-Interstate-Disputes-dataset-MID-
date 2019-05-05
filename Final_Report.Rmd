@@ -205,7 +205,7 @@ confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 getVfromLiL<-function(x,l1,l2) x[[l1]][[l2]]
 
 # To see where these two files came from see the chunk titled "codeappendix" at the end of the document
-#allcoef<-readRDS("coefficients.rds")
+allcoef<-readRDS("coefficients.rds")
 finalres<-readRDS("cleary_concsum.rds")
 ```
 ```{r,results='asis'}
