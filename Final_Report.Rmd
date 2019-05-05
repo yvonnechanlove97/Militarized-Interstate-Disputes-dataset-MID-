@@ -51,6 +51,8 @@ Looking at the MIDB dataset:
 
 Here, we are seeing high amounts of correlation between "revstate" - "revtype1" and "hiact" - "hostlev." Again, these high correlations make sense and can be explained by the dataset. Whether or not a state is a revisionist state should cause a direct increase in revision type, because if "revstate" is 0 then "revtype1" is automatically set to 0 as well, as there's no type of revision. 
 
+\newpage
+
 # MIDA Models
 ## Zach Cleary's Work
 ## Description of MIDA and Goal
@@ -218,7 +220,7 @@ Table two above shows the summarizes key measures about the performance of all t
 print.xtable(xtable(allcoef,caption = "Coefficients from all models"),floating = TRUE)
 ```
 
-\pagebreak
+\newpage
 
 # Modeling for B
 ## Yong's Work
@@ -297,6 +299,7 @@ Palmer, Glenn, Vito D'Orazio, Michael R. Kenwick, and Roseanne W. McManus. Forth
 dfSummary(NNA_Data,graph.col=FALSE,plain.ascii = FALSE,style = "grid")
 
 ```
+
 # MIDB Appendix: Complete Summary
 ```{r,results='asis'}
 MID_Actor=fread('MIDB_4.2_Cleaned.csv')
