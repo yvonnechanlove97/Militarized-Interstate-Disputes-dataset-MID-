@@ -44,7 +44,7 @@ We also wanted to take a look at the correlation between different variables in 
 ![MIDA Correlation Table](Final_Pres-figure/unnamed-chunk-2-1.png)
 \newline
 We see high levels of correlation between "outcome" - "settle," "maxdur" - "mindur," and "hiact" - "hostlevel." These correlations all make sense. The outcome of the dispute increases as settlement increases. Min duration and Max duration would scale together, as estimated duration of the dispute is computed in an interval. It also makes sense that highest action taken increases with hostility level, as these variables are directly related with each other. 
-
+ \newpage
 Looking at the MIDB dataset:
 
 ![MIDB Correlation Table](Final_Pres-figure/unnamed-chunk-2-2.png)
@@ -205,7 +205,7 @@ confusion_mats<-confAll(ResDat,NNA_Data$deaths)
 getVfromLiL<-function(x,l1,l2) x[[l1]][[l2]]
 
 # To see where these two files came from see the chunk titled "codeappendix" at the end of the document
-allcoef<-readRDS("coefficients.rds")
+#allcoef<-readRDS("coefficients.rds")
 finalres<-readRDS("cleary_concsum.rds")
 ```
 ```{r,results='asis'}
